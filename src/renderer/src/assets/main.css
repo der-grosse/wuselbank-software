@@ -1,0 +1,547 @@
+@import './base.css';
+
+:root {
+  --bg: #100f11;
+  --accent: #ca9400;
+  --text-strong: #0f2540;
+  --text-1: #14233a;
+  --text-2: rgba(20, 35, 58, 0.6);
+  --panel-bg: #fff;
+  --positive: #1f9d57;
+  --negative: #d64545;
+  --line: rgba(15, 37, 64, 0.1);
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--text-1);
+  background: var(--bg);
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+ul {
+  padding: 0;
+}
+
+input {
+  font-family: inherit;
+}
+
+/* Single centered terminal panel — no kiosk side/top areas. */
+.app-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+}
+
+.terminal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 680px;
+  height: 100%;
+  max-height: 900px;
+}
+
+.card-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--panel-bg);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--accent);
+}
+
+.clock {
+  display: flex;
+  align-items: flex-end;
+}
+
+.clock-time {
+  font-size: 44px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--text-1);
+}
+
+/* State content fills the space below the header. */
+.card-content {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 28px 32px;
+  overflow: hidden;
+}
+
+/* When showing an account, content aligns to the top and may scroll. */
+.card-panel.success .card-content {
+  justify-content: flex-start;
+}
+
+.message {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-1);
+  text-align: center;
+}
+
+.hint {
+  font-size: 15px;
+  color: var(--text-2);
+  text-align: center;
+}
+
+/* ---- Account screen ---- */
+.account {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+}
+
+.account-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.account-id {
+  display: flex;
+  flex-direction: column;
+}
+
+.account-name {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.account-number {
+  font-size: 15px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.close-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-1);
+  background: rgba(15, 37, 64, 0.06);
+  border-radius: 10px;
+}
+
+.close-btn:hover {
+  background: rgba(15, 37, 64, 0.12);
+}
+
+.balance {
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-strong);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.balance .unit {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.balance .badge {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  background: rgba(202, 148, 0, 0.12);
+  border-radius: 999px;
+  padding: 4px 10px;
+  align-self: center;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.action-btn {
+  padding: 16px 12px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 12px;
+  background: var(--accent);
+  transition: filter 150ms ease;
+}
+
+.action-btn:hover {
+  filter: brightness(1.08);
+}
+
+.action-btn.withdraw,
+.action-btn.transfer {
+  background: var(--text-strong);
+}
+
+/* ---- Transactions ---- */
+.transactions {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.transaction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(15, 37, 64, 0.05);
+}
+
+.tx-party {
+  font-size: 16px;
+  color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tx-amount {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tx-amount.in {
+  color: var(--positive);
+}
+
+.tx-amount.out {
+  color: var(--negative);
+}
+
+/* ---- Toast ---- */
+.toast {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--positive);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: toast-in 200ms ease;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ---- Action modal ---- */
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 40, 0.5);
+  backdrop-filter: blur(2px);
+  padding: 24px;
+  z-index: 10;
+}
+
+.modal {
+  width: 100%;
+  max-width: 460px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: var(--panel-bg);
+  border-radius: 14px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-strong);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.amount-input,
+.filter-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 18px;
+  color: var(--text-1);
+  background: rgba(15, 37, 64, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.amount-input:focus,
+.filter-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.account-list {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px;
+}
+
+.account-list-empty {
+  padding: 12px;
+  font-size: 14px;
+  color: var(--text-2);
+  text-align: center;
+}
+
+.account-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: var(--text-1);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.account-option:hover {
+  background: rgba(15, 37, 64, 0.06);
+}
+
+.account-option.selected {
+  background: rgba(202, 148, 0, 0.16);
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.option-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option-number {
+  flex-shrink: 0;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.modal-error {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--negative);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-secondary,
+.btn-primary {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.btn-secondary {
+  color: var(--text-1);
+  background: rgba(15, 37, 64, 0.08);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(15, 37, 64, 0.14);
+}
+
+.btn-primary {
+  color: #fff;
+  background: var(--accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Idle NFC waves ---- */
+.nfc-icon {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nfc-icon .wave {
+  position: absolute;
+  border: 4px solid rgba(246, 182, 0, 0.85);
+  border-radius: 50%;
+  animation: pulse 2.4s ease-out infinite;
+}
+
+.nfc-icon .wave:nth-child(1) {
+  width: 32px;
+  height: 32px;
+  animation-delay: 0s;
+}
+.nfc-icon .wave:nth-child(2) {
+  width: 64px;
+  height: 64px;
+  animation-delay: 0.4s;
+}
+.nfc-icon .wave:nth-child(3) {
+  width: 96px;
+  height: 96px;
+  animation-delay: 0.8s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* ---- Loading spinner ---- */
+.spinner {
+  width: 72px;
+  height: 72px;
+  border: 8px solid rgba(15, 37, 64, 0.12);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Error badge ---- */
+.icon-error {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  font-weight: 800;
+  color: #fff;
+  border-radius: 50%;
+  background: var(--negative);
+}
