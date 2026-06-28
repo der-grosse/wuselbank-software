@@ -1,7 +1,7 @@
 @import './base.css';
 
 :root {
-  --bg: #100f11;
+  --bg: #9ecaff;
   --accent: #ca9400;
   --text-strong: #0f2540;
   --text-1: #14233a;
@@ -71,7 +71,11 @@ input {
   border-radius: 14px;
   overflow: hidden;
   background: var(--panel-bg);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 24px 60px rgba(15, 37, 64, 0.2);
+  backdrop-filter: blur(12px);
+  transition:
+    border-color 300ms ease,
+    background 300ms ease;
 }
 
 .topbar {
@@ -233,6 +237,7 @@ input {
   filter: brightness(1.08);
 }
 
+.action-btn.deposit,
 .action-btn.withdraw,
 .action-btn.transfer {
   background: var(--text-strong);
