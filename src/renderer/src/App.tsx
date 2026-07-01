@@ -17,10 +17,7 @@ const timeFormatter = new Intl.DateTimeFormat('de-DE', {
 })
 
 // Per-action labels: button caption and how the counterpart is described.
-const ACTIONS: Record<
-  ActionKind,
-  { label: string; counterpartLabel: string; verb: string }
-> = {
+const ACTIONS: Record<ActionKind, { label: string; counterpartLabel: string; verb: string }> = {
   deposit: { label: 'Einzahlung', counterpartLabel: 'Von Konto', verb: 'eingezahlt' },
   withdraw: { label: 'Auszahlung', counterpartLabel: 'Auf Konto', verb: 'ausgezahlt' },
   transfer: { label: 'Überweisung', counterpartLabel: 'Empfänger', verb: 'überwiesen' }
@@ -196,18 +193,22 @@ function TransactionList({
     return <p className="hint">Noch keine Buchungen</p>
   }
 
-  const sorted = [...transactions].sort((a, b) => b.transaction_id - a.transaction_id)
-
   return (
     <ul className="transactions">
-      {sorted.map((tx) => {
-        const incoming = tx.receiver === accountName
-        const counterparty = incoming ? tx.sender : tx.receiver
+      {transactions.toReversed().map((tx) => {
+        if (tx.amount < 0) {
+          const receiver = tx.receiver
+          tx.receiver = tx.sender
+          tx.sender = receiver
+          tx.amount = -tx.amount
+        }
+        const sending = tx.sender === accountName
+        const counterparty = tx.sender === accountName ? tx.receiver : tx.sender
         return (
           <li key={tx.transaction_id} className="transaction">
             <span className="tx-party">{counterparty}</span>
-            <span className={`tx-amount ${incoming ? 'in' : 'out'}`}>
-              {incoming ? '+' : '−'}
+            <span className={`tx-amount ${sending ? 'out' : 'in'}`}>
+              {sending ? '−' : '+'}
               {wuselFormatter.format(Math.abs(tx.amount))} Wusel
             </span>
           </li>
@@ -265,10 +266,7 @@ function ActionDialog({
     })
     setSubmitting(false)
     if (result.ok) {
-      onSuccess(
-        result.account,
-        `${wuselFormatter.format(amount)} Wusel ${meta.verb}.`
-      )
+      onSuccess(result.account, `${wuselFormatter.format(amount)} Wusel ${meta.verb}.`)
     } else {
       setError(result.message)
     }

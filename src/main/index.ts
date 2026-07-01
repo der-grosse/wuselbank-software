@@ -1,9 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, utilityProcess } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { NFC } from 'nfc-pcsc'
 import icon from '../../resources/icon.png?asset'
-import type { ActionRequest, CardStatus } from '../shared/card'
+import type { ActionRequest, CardStatus, NfcMessage } from '../shared/card'
 import { fetchBalance, listAccountSummaries, performAction } from './api'
 
 // Minimum/maximum time the "reading" state is shown, so the loading animation
@@ -20,7 +19,7 @@ function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
-    show: false,
+    show: true,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
@@ -69,39 +68,43 @@ async function handleCard(cardId: string): Promise<void> {
   sendCardStatus(status)
 }
 
-/** Listen to the PC/SC NFC reader and hand each card tap to `handleCard`. */
+/**
+ * Drive the NFC reader from a dedicated `utilityProcess`, handing each card tap
+ * to `handleCard`. The reader lives in its own process so that PC/SC polling —
+ * which busy-loops on Windows when no reader is connected — can never block
+ * this process's event loop and freeze the window. See `nfcWorker.ts`.
+ */
 function setupNfc(): void {
-  const nfc = new NFC()
-
-  nfc.on('reader', (reader) => {
-    console.log(`NFC reader connected: ${reader.name}`)
-
-    // Tracks the most recent read so a removal doesn't reset the screen before
-    // its result has even been shown (e.g. card lifted while still reading).
-    let activeRead: Promise<void> = Promise.resolve()
-
-    reader.on('card', (card) => {
-      console.log(`Card detected: ${card.uid}`)
-      activeRead = handleCard(card.uid)
-      void activeRead
-    })
-
-    reader.on('card.off', (card) => {
-      console.log(`Card removed: ${card.uid}`)
-      void activeRead.then(() => sendCardStatus({ state: 'removed' }))
-    })
-
-    reader.on('error', (err) => {
-      console.error(`NFC reader error (${reader.name}):`, err)
-    })
-
-    reader.on('end', () => {
-      console.log(`NFC reader disconnected: ${reader.name}`)
-    })
+  const nfc = utilityProcess.fork(join(__dirname, 'nfcWorker.js'), [], {
+    serviceName: 'nfc-reader'
   })
 
-  nfc.on('error', (err) => {
-    console.error('NFC error:', err)
+  // Tracks the most recent read so a removal doesn't reset the screen before
+  // its result has even been shown (e.g. card lifted while still reading).
+  let activeRead: Promise<void> = Promise.resolve()
+
+  nfc.on('message', (message: NfcMessage) => {
+    switch (message.type) {
+      case 'card':
+        console.log(`Card detected: ${message.uid}`)
+        activeRead = handleCard(message.uid)
+        void activeRead
+        break
+      case 'card-off':
+        console.log(`Card removed: ${message.uid}`)
+        void activeRead.then(() => sendCardStatus({ state: 'removed' }))
+        break
+      case 'log':
+        console.log(message.message)
+        break
+      case 'error':
+        console.error(message.message)
+        break
+    }
+  })
+
+  nfc.on('exit', (code) => {
+    console.error(`NFC process exited with code ${code}`)
   })
 }
 

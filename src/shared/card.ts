@@ -32,6 +32,17 @@ export type CardStatus =
   // loaded account until a new card is presented, so this is informational.
   | { state: 'removed' }
 
+/**
+ * Messages the NFC utility process sends to the main process. The reader is
+ * driven in a separate process so its PC/SC polling (which busy-loops when no
+ * reader is connected) can never block the main process's UI message pump.
+ */
+export type NfcMessage =
+  | { type: 'card'; uid: string }
+  | { type: 'card-off'; uid: string }
+  | { type: 'log'; message: string }
+  | { type: 'error'; message: string }
+
 /** Lightweight account entry for the counterpart picker. */
 export interface AccountSummary {
   account_number: number
